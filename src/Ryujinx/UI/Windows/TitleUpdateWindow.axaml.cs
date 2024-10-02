@@ -1,21 +1,22 @@
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
 using Avalonia.Styling;
 using FluentAvalonia.UI.Controls;
 using Ryujinx.Ava.Common.Locale;
-using Ryujinx.Ava.UI.Helpers;
 using Ryujinx.Ava.UI.Models;
 using Ryujinx.Ava.UI.ViewModels;
 using Ryujinx.HLE.FileSystem;
+using Ryujinx.UI.App.Common;
 using Ryujinx.UI.Common.Helper;
 using System.Threading.Tasks;
-using Button = Avalonia.Controls.Button;
 
 namespace Ryujinx.Ava.UI.Windows
 {
     public partial class TitleUpdateWindow : UserControl
     {
-        public TitleUpdateViewModel ViewModel;
+        public readonly TitleUpdateViewModel ViewModel;
 
         public TitleUpdateWindow()
         {
@@ -24,22 +25,22 @@ namespace Ryujinx.Ava.UI.Windows
             InitializeComponent();
         }
 
-        public TitleUpdateWindow(VirtualFileSystem virtualFileSystem, ulong titleId)
+        public TitleUpdateWindow(VirtualFileSystem virtualFileSystem, ApplicationData applicationData)
         {
-            DataContext = ViewModel = new TitleUpdateViewModel(virtualFileSystem, titleId);
+            DataContext = ViewModel = new TitleUpdateViewModel(virtualFileSystem, applicationData);
 
             InitializeComponent();
         }
 
-        public static async Task Show(VirtualFileSystem virtualFileSystem, ulong titleId, string titleName)
+        public static async Task Show(VirtualFileSystem virtualFileSystem, ApplicationData applicationData)
         {
             ContentDialog contentDialog = new()
             {
                 PrimaryButtonText = "",
                 SecondaryButtonText = "",
                 CloseButtonText = "",
-                Content = new TitleUpdateWindow(virtualFileSystem, titleId),
-                Title = LocaleManager.Instance.UpdateAndGetDynamicValue(LocaleKeys.GameUpdateWindowHeading, titleName, titleId.ToString("X16")),
+                Content = new TitleUpdateWindow(virtualFileSystem, applicationData),
+                Title = LocaleManager.Instance.UpdateAndGetDynamicValue(LocaleKeys.GameUpdateWindowHeading, applicationData.Name, applicationData.IdBaseString),
             };
 
             Style bottomBorder = new(x => x.OfType<Grid>().Name("DialogSpace").Child().OfType<Border>());
@@ -47,7 +48,7 @@ namespace Ryujinx.Ava.UI.Windows
 
             contentDialog.Styles.Add(bottomBorder);
 
-            await ContentDialogHelper.ShowAsync(contentDialog);
+            await contentDialog.ShowAsync();
         }
 
         private void Close(object sender, RoutedEventArgs e)
@@ -59,9 +60,15 @@ namespace Ryujinx.Ava.UI.Windows
         {
             ViewModel.Save();
 
-            if (VisualRoot is MainWindow window)
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime al)
             {
-                window.LoadApplications();
+                foreach (Window window in al.Windows)
+                {
+                    if (window is MainWindow mainWindow)
+                    {
+                        mainWindow.LoadApplications();
+                    }
+                }
             }
 
             ((ContentDialog)Parent).Hide();

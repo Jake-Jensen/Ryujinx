@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     x:Class="Ryujinx.Ava.UI.Views.Settings.SettingsGraphicsView"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -165,13 +165,16 @@
                                       ToolTip.Tip="{locale:Locale GraphicsScalingFilterTooltip}"
                                       SelectedIndex="{Binding ScalingFilter}">
                                 <ComboBoxItem>
-                                    <TextBlock Text="Bilinear" />
+                                    <TextBlock Text="{locale:Locale GraphicsScalingFilterBilinear}" />
                                 </ComboBoxItem>
                                 <ComboBoxItem>
-                                    <TextBlock Text="Nearest" />
+                                    <TextBlock Text="{locale:Locale GraphicsScalingFilterNearest}" />
                                 </ComboBoxItem>
                                 <ComboBoxItem>
-                                    <TextBlock Text="FSR" />
+                                    <TextBlock Text="{locale:Locale GraphicsScalingFilterFsr}" />
+                                </ComboBoxItem>
+                                <ComboBoxItem>
+                                    <TextBlock Text="{locale:Locale GraphicsScalingFilterArea}" />
                                 </ComboBoxItem>
                             </ComboBox>
                             <controls:SliderScroll Value="{Binding ScalingFilterLevel}"
